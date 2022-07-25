@@ -7,7 +7,7 @@ tbl_s <- function(x,y,data, p = FALSE){
   require(flextable)
   require(gtsummary)
   
-  table <- z |> 
+  table <- data |> 
     select(all_of(c(x,y))) |> 
     tbl_summary(by = all_of(x))
   
