@@ -18,23 +18,22 @@ tbl_s <- function(x,y,data, p = FALSE, ylab = NULL){
   
   table <- data |> 
     select(all_of(c(x,y))) |> 
-    tbl_summary(by = all_of(x))
+    tbl_summary(by = all_of(x)) |> 
+    bold_labels() |> 
+    add_overall() 
   
   if (p == TRUE){
     table <- table |> 
-      add_p() |> 
-      bold_labels() |> 
-      add_overall() |> 
-      as_flex_table() |> 
-      theme_box()
+    add_p()
   }
   else
-  {table <- table |>
-    add_overall() |> 
-    bold_labels() |> 
-    as_flex_table() |> 
-    theme_box()
+  {table <- table 
   }
+	
+	table <- table |> 
+  as_flex_table() |> 
+  theme_box()
+	
   print(table)
 }
 
