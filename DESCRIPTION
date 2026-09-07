@@ -1,0 +1,24 @@
+Package: easyanalysis
+Title: Summary Tables and Normality Checks for Research Reporting
+Version: 0.1.0
+Authors@R:
+    person("Mukul", "Maheshwari", email = "noreply@example.com", role = c("aut", "cre"))
+Description: Helper functions for building "Table 1"-style descriptive and
+    comparison summary tables (via gtsummary and flextable) and for checking
+    normality of continuous variables (via the Shapiro-Wilk test), aimed at
+    clinical/research manuscript reporting.
+License: GPL-2
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports:
+    broom,
+    dplyr,
+    flextable,
+    formattable,
+    gtsummary,
+    Hmisc,
+    tidyr
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

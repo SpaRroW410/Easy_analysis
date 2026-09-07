@@ -1,0 +1,23 @@
+# R
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+.Rproj.user/
+*.Rproj
+renv/
+renv.lock
+
+# Package build artifacts
+/*.tar.gz
+/*.Rcheck/
+
+# pkgdown site build output
+docs/
+
+# Shiny app (Phase 2)
+app/rsconnect/
+
+# OS / editor
+.DS_Store
+.vscode/
