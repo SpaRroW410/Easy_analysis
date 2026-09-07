@@ -1,3 +1,20 @@
+# easyanalysis 0.2.0
+
+- `summary_table()`'s p-value test for continuous variables (`p = TRUE`) is
+  now chosen automatically based on normality, instead of always using
+  `gtsummary`'s default test. A continuous variable is treated as normal
+  only if it passes a Shapiro-Wilk test (p > 0.05) in *every* level of `x`;
+  normal variables use `t.test`/`aov` (two vs. three-or-more groups),
+  non-normal variables use `wilcox.test`/`kruskal.test`.
+- New `parametric` argument on `summary_table()`: a character vector of
+  variable names (from `y`) that should always use the parametric test,
+  skipping the normality check — useful when Shapiro-Wilk is overly
+  sensitive (e.g. large samples).
+- Internal refactor: the Shapiro-Wilk logic in `check_normality()` is now
+  shared with the new automatic test selection via two internal helpers
+  (`shapiro_p_one_group()`, `all_groups_normal()`); `check_normality()`'s
+  own behavior and output are unchanged.
+
 # easyanalysis 0.1.0 (renovation)
 
 The repository originally held four standalone, copy-pasted scripts instead

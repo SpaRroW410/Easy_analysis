@@ -1,3 +1,60 @@
+#' Shapiro-Wilk p-values for one group
+#'
+#' Internal helper shared by [check_normality()] and the automatic
+#' normality-based test selection in [summary_table()]. Runs a Shapiro-Wilk
+#' test on each variable in `y`, restricted to rows where `x` equals
+#' `group_value`.
+#'
+#' @param x Character scalar naming the grouping variable in `data`.
+#' @param y Character vector naming the continuous variable(s) to test.
+#' @param data A data frame containing `x` and all of `y`.
+#' @param group_value The single value of `x` to filter rows to before
+#'   testing.
+#'
+#' @return A data frame with one row per variable in `y`, with columns
+#'   `Variable` and `p.value` (the raw Shapiro-Wilk p-value).
+#'
+#' @keywords internal
+#' @noRd
+shapiro_p_one_group <- function(x, y, data, group_value) {
+  data |>
+    dplyr::filter(!!as.symbol(x) == group_value) |>
+    tidyr::gather(key = "Variable", value = "value", dplyr::all_of(y)) |>
+    dplyr::group_by(Variable) |>
+    dplyr::do(broom::tidy(stats::shapiro.test(.$value))) |>
+    dplyr::ungroup() |>
+    dplyr::select(Variable, p.value)
+}
+
+#' Check whether variables are normal across every group
+#'
+#' Internal helper used by [summary_table()] to decide, for each variable in
+#' `y`, whether a parametric test is appropriate: a variable only counts as
+#' normal if its Shapiro-Wilk p-value exceeds `alpha` in *every* level of
+#' `x`, not just one.
+#'
+#' @inheritParams shapiro_p_one_group
+#' @param alpha Significance threshold. Default `0.05`.
+#'
+#' @return A named logical vector, one entry per variable in `y` (in the
+#'   same order), `TRUE` if that variable is normal in every group.
+#'
+#' @keywords internal
+#' @noRd
+all_groups_normal <- function(x, y, data, alpha = 0.05) {
+  group_levels <- levels(as.factor(data[[x]]))
+
+  p_by_group <- lapply(group_levels, function(group_value) {
+    shapiro_p_one_group(x, y, data, group_value)
+  })
+
+  result <- dplyr::bind_rows(p_by_group) |>
+    dplyr::group_by(Variable) |>
+    dplyr::summarise(all_normal = all(p.value > alpha), .groups = "drop")
+
+  stats::setNames(result$all_normal, result$Variable)[y]
+}
+
 #' Check normality of continuous variables within one group
 #'
 #' Runs a Shapiro-Wilk normality test on each variable in `y`, restricted to
@@ -19,16 +76,11 @@
 #'
 #' @export
 check_normality <- function(x, y, data) {
-  data |>
-    dplyr::filter(!!as.symbol(x) == levels(data[[x]])[[1]]) |>
-    tidyr::gather(key = "Variable", value = "value", dplyr::all_of(y)) |>
-    dplyr::group_by(Variable) |>
-    dplyr::do(broom::tidy(shapiro.test(.$value))) |>
-    dplyr::ungroup() |>
+  shapiro_p_one_group(x, y, data, levels(data[[x]])[[1]]) |>
     dplyr::mutate(p.value_dec = formattable::formattable(p.value, digits = 3, format = "f")) |>
     dplyr::mutate(p.value_r = dplyr::case_when(
       p.value < 0.05 ~ TRUE,
       p.value > 0.05 ~ FALSE
     )) |>
-    dplyr::select(-c(method, p.value, statistic))
+    dplyr::select(-p.value)
 }

@@ -35,6 +35,14 @@ summary_table(
   p = TRUE, ylab = lab_y, caption = "**Comparison**"
 )
 
+# p = TRUE picks t.test/aov vs. wilcox.test/kruskal.test per variable based on
+# a Shapiro-Wilk normality check across every group. Force Sepal.Width to a
+# parametric test regardless of that check:
+summary_table(
+  x = "Species", y = c("Sepal.Width", "Sepal.Length"), data = iris,
+  p = TRUE, parametric = "Sepal.Width"
+)
+
 # Check normality of each variable within the first level of a grouping variable
 check_normality(x = "Species", y = c("Sepal.Width", "Sepal.Length"), data = iris)
 ```

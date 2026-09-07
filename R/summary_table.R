@@ -20,10 +20,28 @@
 #' @param mean Logical. If `TRUE`, continuous variables are summarized as
 #'   mean \eqn{\pm} SD instead of the `gtsummary` default (median \[IQR\]).
 #'   Default `FALSE`.
+#' @param parametric Optional character vector of continuous variable names
+#'   (drawn from `y`) that should always use a parametric test
+#'   (`t.test`/`aov`), overriding the automatic normality check below.
+#'   Default `NULL`.
 #' @param flex Logical. If `TRUE` (default), the result is converted to a
 #'   `flextable` object (via [flextable::as_flex_table()] with
 #'   [flextable::theme_box()]) suitable for direct export to Word/PowerPoint.
 #'   If `FALSE`, the raw `gtsummary` table object is returned instead.
+#'
+#' @details
+#' When `p = TRUE` and `x` is supplied, the test applied to each *continuous*
+#' variable in `y` (numeric with more than two distinct values) is chosen
+#' automatically based on normality, using the same Shapiro-Wilk logic as
+#' [check_normality()] but checked across *every* level of `x`: a variable
+#' counts as normal only if it passes (p > 0.05) in every group. Normal
+#' variables use `t.test` (two groups) or `aov` (three or more groups);
+#' non-normal variables use `wilcox.test` or `kruskal.test` respectively. Any
+#' variable named in `parametric` skips the normality check and always uses
+#' the parametric test — useful when Shapiro-Wilk is overly sensitive (e.g.
+#' large samples) and a parametric test is preferred anyway. Categorical
+#' variables in `y` are unaffected and keep using `gtsummary`'s own default
+#' test.
 #'
 #' @return A `flextable` object (if `flex = TRUE`) or a `gtsummary` table
 #'   object (if `flex = FALSE`).
@@ -35,6 +53,11 @@
 #'   x = "Species", y = c("Sepal.Width", "Sepal.Length"), data = iris,
 #'   p = TRUE, ylab = lab_y, caption = "**Comparison**"
 #' )
+#' # Force Sepal.Width to a parametric test regardless of normality
+#' summary_table(
+#'   x = "Species", y = c("Sepal.Width", "Sepal.Length"), data = iris,
+#'   p = TRUE, parametric = "Sepal.Width"
+#' )
 #'
 #' @export
 summary_table <- function(x = NULL,
@@ -45,6 +68,7 @@ summary_table <- function(x = NULL,
                            caption = "",
                            span_header = NULL,
                            mean = FALSE,
+                           parametric = NULL,
                            flex = TRUE) {
   if (length(ylab) >= 1) {
     Hmisc::label(data) <- as.list(ylab[match(names(data), names(ylab))])
@@ -89,8 +113,41 @@ summary_table <- function(x = NULL,
   }
 
   if (p == TRUE) {
-    table <- table |>
-      gtsummary::add_p()
+    continuous_vars <- character(0)
+    if (length(x) > 0) {
+      is_continuous <- vapply(
+        y,
+        function(v) is.numeric(data[[v]]) && dplyr::n_distinct(data[[v]], na.rm = TRUE) > 2,
+        logical(1)
+      )
+      continuous_vars <- y[is_continuous]
+    }
+
+    if (length(continuous_vars) > 0) {
+      n_groups <- dplyr::n_distinct(data[[x]], na.rm = TRUE)
+
+      normal <- stats::setNames(rep(TRUE, length(continuous_vars)), continuous_vars)
+      vars_to_check <- setdiff(continuous_vars, parametric)
+      if (length(vars_to_check) > 0) {
+        normal[vars_to_check] <- all_groups_normal(x, vars_to_check, data)
+      }
+
+      test_name <- ifelse(normal,
+        if (n_groups > 2) "aov" else "t.test",
+        if (n_groups > 2) "kruskal.test" else "wilcox.test"
+      )
+
+      test_list <- Map(
+        function(v, t) stats::as.formula(sprintf("`%s` ~ \"%s\"", v, t)),
+        continuous_vars, test_name
+      )
+
+      table <- table |>
+        gtsummary::add_p(test = test_list)
+    } else {
+      table <- table |>
+        gtsummary::add_p()
+    }
   }
 
   if (length(y) == 1) {
