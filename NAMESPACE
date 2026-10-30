@@ -3,4 +3,5 @@
 # with roxygen2 once tooling is available; see ROADMAP.md Phase 1).
 
 export(check_normality)
+export(run_app)
 export(summary_table)

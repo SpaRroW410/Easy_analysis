@@ -1,3 +1,14 @@
+# easyanalysis 0.3.0
+
+- New Shiny web app, launched with `run_app()`: upload a CSV or Excel
+  dataset, pick a group variable and outcome variables, toggle mean ± SD,
+  p-values (with the normality-based test selection and `parametric`
+  override from 0.2.0), a caption and a spanning header, preview the table,
+  and download it as a Word (`.docx`) file.
+- The app lives in `inst/app/` and calls `summary_table()` directly; dataset
+  reading is handled by an internal `read_dataset()` helper (character
+  columns become factors).
+
 # easyanalysis 0.2.0
 
 - `summary_table()`'s p-value test for continuous variables (`p = TRUE`) is

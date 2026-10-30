@@ -49,6 +49,16 @@ check_normality(x = "Species", y = c("Sepal.Width", "Sepal.Length"), data = iris
 
 See `?summary_table` and `?check_normality` for full parameter documentation.
 
+## Web app
+
+```r
+easyanalysis::run_app()
+```
+
+Upload a `.csv`/`.xlsx`/`.xls` file, choose a group variable and outcome
+variables, set the options, preview the table and download it as a Word
+document.
+
 ## Development status
 
 This is an early-stage personal project. The package has not yet been run
