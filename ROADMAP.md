@@ -31,8 +31,8 @@ was an early idea but was never built.
 ## Phase 2 — Shiny web app
 
 **Status: first scaffold done** (`run_app()`, `inst/app/app.R`): upload, variable
-selection, preview, single-table `.docx` download. Still to do: variable labels
-(`ylab`) UI, multi-table reports, PDF/HTML export, Docker/shinyapps.io deployment.
+selection, preview, single-table `.docx` download. Variable labels done in 0.4.0. Still to do:
+multi-table reports, PDF/HTML export, Docker/shinyapps.io deployment.
 
 Build the app the user originally envisioned, as a new `app/` directory
 that depends on this package rather than duplicating its logic:

@@ -13,6 +13,7 @@
 #'   levels of `x`. Default `FALSE`. Ignored if `x` is `NULL`.
 #' @param ylab Optional named character vector mapping variable names in
 #'   `data` to display labels, e.g. `c(Sepal.Length = "Sepal length")`.
+#'   Variables not named keep their original name.
 #' @param caption Optional caption string. If non-empty, `", N = {N}"` is
 #'   appended automatically.
 #' @param span_header Optional string used as a spanning header over the
@@ -70,8 +71,8 @@ summary_table <- function(x = NULL,
                            mean = FALSE,
                            parametric = NULL,
                            flex = TRUE) {
-  if (length(ylab) >= 1) {
-    Hmisc::label(data) <- as.list(ylab[match(names(data), names(ylab))])
+  for (v in intersect(names(ylab), names(data))) {
+    Hmisc::label(data[[v]]) <- ylab[[v]]
   }
 
   table <- data |>

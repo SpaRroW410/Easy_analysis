@@ -58,3 +58,11 @@ test_that("all_groups_normal requires every group to pass to call a variable nor
   expect_true(result[["a"]])
   expect_false(result[["b"]])
 })
+
+test_that("summary_table accepts labels for only some variables", {
+  result <- summary_table(
+    x = "Species", y = c("Sepal.Width", "Sepal.Length"), data = iris,
+    ylab = c(Sepal.Width = "Sepal width")
+  )
+  expect_s3_class(result, "flextable")
+})

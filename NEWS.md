@@ -1,3 +1,10 @@
+# easyanalysis 0.4.0
+
+- The web app now has a variable-label option: a text box per selected
+  variable (including the group variable); blank keeps the original name.
+- `summary_table()`: `ylab` no longer blanks the labels of variables it does
+  not name; only the named variables are relabelled.
+
 # easyanalysis 0.3.0
 
 - New Shiny web app, launched with `run_app()`: upload a CSV or Excel

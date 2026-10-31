@@ -56,7 +56,7 @@ easyanalysis::run_app()
 ```
 
 Upload a `.csv`/`.xlsx`/`.xls` file, choose a group variable and outcome
-variables, set the options, preview the table and download it as a Word
+variables, optionally relabel them, set the options, preview the table and download it as a Word
 document.
 
 ## Development status

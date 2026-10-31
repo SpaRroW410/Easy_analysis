@@ -6,6 +6,8 @@ options(shiny.maxRequestSize = 30 * 1024^2)
 
 no_group <- ".none"
 
+`%||%` <- function(a, b) if (is.null(a)) b else a
+
 ui <- fluidPage(
   titlePanel("easyanalysis: summary tables"),
   sidebarLayout(
@@ -14,6 +16,7 @@ ui <- fluidPage(
                 accept = c(".csv", ".xlsx", ".xls")),
       selectInput("x", "Group variable", choices = c("None (overall table)" = no_group)),
       selectizeInput("y", "Outcome variables", choices = NULL, multiple = TRUE),
+      uiOutput("label_inputs"),
       checkboxInput("mean", "Summarize continuous variables as mean ± SD", FALSE),
       checkboxInput("p", "Add p-values", FALSE),
       conditionalPanel(
@@ -71,6 +74,29 @@ server <- function(input, output, session) {
     )
   })
 
+  # Label boxes use index-based ids so unusual column names are safe.
+  label_id <- function(var) paste0("label_", match(var, names(data())))
+
+  label_vars <- reactive(c(group_var(), input$y))
+
+  output$label_inputs <- renderUI({
+    vars <- label_vars()
+    req(length(vars) > 0)
+    tagList(
+      tags$label("Variable labels (optional)"),
+      lapply(vars, function(v) {
+        id <- label_id(v)
+        textInput(id, label = v, value = isolate(input[[id]]) %||% "", placeholder = v)
+      })
+    )
+  })
+
+  labels <- reactive({
+    vars <- label_vars()
+    values <- vapply(vars, function(v) input[[label_id(v)]] %||% "", character(1))
+    easyanalysis:::collect_labels(vars, values)
+  })
+
   table <- reactive({
     df <- data()
     req(length(input$y) > 0)
@@ -81,6 +107,7 @@ server <- function(input, output, session) {
         x = x,
         y = input$y,
         data = df,
+        ylab = labels(),
         p = isTRUE(input$p) && !is.null(x),
         caption = input$caption,
         span_header = if (nzchar(input$span_header)) input$span_header else NULL,
