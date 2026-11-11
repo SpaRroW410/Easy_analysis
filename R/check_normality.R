@@ -17,13 +17,13 @@
 #' @keywords internal
 #' @noRd
 shapiro_p_one_group <- function(x, y, data, group_value) {
-  data |>
-    dplyr::filter(!!as.symbol(x) == group_value) |>
-    tidyr::gather(key = "Variable", value = "value", dplyr::all_of(y)) |>
-    dplyr::group_by(Variable) |>
-    dplyr::do(broom::tidy(stats::shapiro.test(.$value))) |>
-    dplyr::ungroup() |>
-    dplyr::select(Variable, p.value)
+  in_group <- data[[x]] == group_value
+  p_values <- vapply(
+    y,
+    function(v) stats::shapiro.test(as.numeric(data[[v]][in_group]))$p.value,
+    numeric(1)
+  )
+  data.frame(Variable = y, p.value = unname(p_values), stringsAsFactors = FALSE)
 }
 
 #' Check whether variables are normal across every group

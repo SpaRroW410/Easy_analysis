@@ -1,3 +1,13 @@
+# easyanalysis 0.4.2
+
+- Fixes found by the first real CI run against current `gtsummary` (2.x):
+  `p = TRUE` no longer errors when choosing tests per variable, and
+  `mean = TRUE` works again (the `mean` argument no longer shadows
+  `base::mean` inside `gtsummary`).
+- Normality checks no longer warn when columns carry different variable
+  labels, and no longer need `tidyr`/`broom`.
+- Source files are ASCII-only (the plus-minus sign is now `\u00b1`).
+
 # easyanalysis 0.4.1
 
 - Added GitHub Actions workflows: `R-CMD-check` (Ubuntu and Windows) and a

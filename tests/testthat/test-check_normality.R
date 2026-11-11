@@ -16,3 +16,12 @@ test_that("check_normality ignores missing values", {
   expect_equal(nrow(result), 1)
   expect_false(is.na(result$p.value_r))
 })
+
+test_that("normality checks do not warn when columns carry different labels", {
+  df <- iris
+  Hmisc::label(df$Sepal.Width) <- "Sepal width"
+  Hmisc::label(df$Sepal.Length) <- "Sepal length"
+
+  expect_no_warning(check_normality("Species", c("Sepal.Width", "Sepal.Length"), df))
+  expect_no_warning(all_groups_normal("Species", c("Sepal.Width", "Sepal.Length"), df))
+})

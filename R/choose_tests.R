@@ -43,8 +43,10 @@ choose_tests <- function(x, y, data, parametric = NULL) {
     if (n_groups > 2) "kruskal.test" else "wilcox.test"
   )
 
-  Map(
+  # Unnamed on purpose: gtsummary reads a named list as list(var = value) and
+  # would then reject the formulas.
+  unname(Map(
     function(v, t) stats::as.formula(sprintf("`%s` ~ \"%s\"", v, t)),
     continuous_vars, test_name
-  )
+  ))
 }

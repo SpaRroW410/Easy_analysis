@@ -71,7 +71,7 @@ counts as normal only if it passes (p > 0.05) in every group. Normal
 variables use \code{t.test} (two groups) or \code{aov} (three or more groups);
 non-normal variables use \code{wilcox.test} or \code{kruskal.test} respectively. Any
 variable named in \code{parametric} skips the normality check and always uses
-the parametric test — useful when Shapiro-Wilk is overly sensitive (e.g.
+the parametric test - useful when Shapiro-Wilk is overly sensitive (e.g.
 large samples) and a parametric test is preferred anyway. Categorical
 variables in \code{y} are unaffected and keep using \code{gtsummary}'s own default
 test.

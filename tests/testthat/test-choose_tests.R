@@ -25,8 +25,8 @@ test_that("choose_tests picks aov/kruskal.test for three or more groups", {
 
   result <- choose_tests("g", c("a", "b"), grouped(3))
 
-  expect_equal(deparse(result$a), "a ~ \"aov\"")
-  expect_equal(deparse(result$b), "b ~ \"kruskal.test\"")
+  expect_equal(deparse(result[[1]]), "a ~ \"aov\"")
+  expect_equal(deparse(result[[2]]), "b ~ \"kruskal.test\"")
 })
 
 test_that("choose_tests picks t.test/wilcox.test for two groups", {
@@ -36,8 +36,8 @@ test_that("choose_tests picks t.test/wilcox.test for two groups", {
 
   result <- choose_tests("g", c("a", "b"), grouped(2))
 
-  expect_equal(deparse(result$a), "a ~ \"t.test\"")
-  expect_equal(deparse(result$b), "b ~ \"wilcox.test\"")
+  expect_equal(deparse(result[[1]]), "a ~ \"t.test\"")
+  expect_equal(deparse(result[[2]]), "b ~ \"wilcox.test\"")
 })
 
 test_that("choose_tests skips the normality check for parametric variables", {
@@ -50,6 +50,6 @@ test_that("choose_tests skips the normality check for parametric variables", {
 
   result <- choose_tests("g", c("a", "b"), grouped(3), parametric = "b")
 
-  expect_equal(deparse(result$a), "a ~ \"kruskal.test\"")
-  expect_equal(deparse(result$b), "b ~ \"aov\"")
+  expect_equal(deparse(result[[1]]), "a ~ \"kruskal.test\"")
+  expect_equal(deparse(result[[2]]), "b ~ \"aov\"")
 })

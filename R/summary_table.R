@@ -39,7 +39,7 @@
 #' variables use `t.test` (two groups) or `aov` (three or more groups);
 #' non-normal variables use `wilcox.test` or `kruskal.test` respectively. Any
 #' variable named in `parametric` skips the normality check and always uses
-#' the parametric test — useful when Shapiro-Wilk is overly sensitive (e.g.
+#' the parametric test - useful when Shapiro-Wilk is overly sensitive (e.g.
 #' large samples) and a parametric test is preferred anyway. Categorical
 #' variables in `y` are unaffected and keep using `gtsummary`'s own default
 #' test.
@@ -71,6 +71,11 @@ summary_table <- function(x = NULL,
                           mean = FALSE,
                           parametric = NULL,
                           flex = TRUE) {
+  # gtsummary resolves "{mean}" by name, so the `mean` argument must not shadow
+  # base::mean while tbl_summary() runs.
+  use_mean <- isTRUE(mean)
+  mean <- base::mean
+
   for (v in intersect(names(ylab), names(data))) {
     Hmisc::label(data[[v]]) <- ylab[[v]]
   }
@@ -78,7 +83,7 @@ summary_table <- function(x = NULL,
   table <- data |>
     dplyr::select(dplyr::all_of(c(x, y)))
 
-  if (mean == FALSE) {
+  if (!use_mean) {
     table <- table |>
       gtsummary::tbl_summary(
         by = dplyr::all_of(x),
@@ -89,7 +94,7 @@ summary_table <- function(x = NULL,
       gtsummary::tbl_summary(
         by = dplyr::all_of(x),
         type = gtsummary::all_dichotomous() ~ "categorical",
-        statistic = gtsummary::all_continuous() ~ "{mean} ± {sd}"
+        statistic = gtsummary::all_continuous() ~ "{mean} \u00b1 {sd}"
       )
   }
 
