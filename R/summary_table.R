@@ -26,7 +26,7 @@
 #'   (`t.test`/`aov`), overriding the automatic normality check below.
 #'   Default `NULL`.
 #' @param flex Logical. If `TRUE` (default), the result is converted to a
-#'   `flextable` object (via [flextable::as_flex_table()] with
+#'   `flextable` object (via [gtsummary::as_flex_table()] with
 #'   [flextable::theme_box()]) suitable for direct export to Word/PowerPoint.
 #'   If `FALSE`, the raw `gtsummary` table object is returned instead.
 #'
@@ -62,15 +62,15 @@
 #'
 #' @export
 summary_table <- function(x = NULL,
-                           y,
-                           data,
-                           p = FALSE,
-                           ylab = NULL,
-                           caption = "",
-                           span_header = NULL,
-                           mean = FALSE,
-                           parametric = NULL,
-                           flex = TRUE) {
+                          y,
+                          data,
+                          p = FALSE,
+                          ylab = NULL,
+                          caption = "",
+                          span_header = NULL,
+                          mean = FALSE,
+                          parametric = NULL,
+                          flex = TRUE) {
   for (v in intersect(names(ylab), names(data))) {
     Hmisc::label(data[[v]]) <- ylab[[v]]
   }
@@ -113,41 +113,12 @@ summary_table <- function(x = NULL,
       gtsummary::modify_caption(paste(caption, "N = {N}"))
   }
 
-  if (p == TRUE) {
-    continuous_vars <- character(0)
-    if (length(x) > 0) {
-      is_continuous <- vapply(
-        y,
-        function(v) is.numeric(data[[v]]) && dplyr::n_distinct(data[[v]], na.rm = TRUE) > 2,
-        logical(1)
-      )
-      continuous_vars <- y[is_continuous]
-    }
-
-    if (length(continuous_vars) > 0) {
-      n_groups <- dplyr::n_distinct(data[[x]], na.rm = TRUE)
-
-      normal <- stats::setNames(rep(TRUE, length(continuous_vars)), continuous_vars)
-      vars_to_check <- setdiff(continuous_vars, parametric)
-      if (length(vars_to_check) > 0) {
-        normal[vars_to_check] <- all_groups_normal(x, vars_to_check, data)
-      }
-
-      test_name <- ifelse(normal,
-        if (n_groups > 2) "aov" else "t.test",
-        if (n_groups > 2) "kruskal.test" else "wilcox.test"
-      )
-
-      test_list <- Map(
-        function(v, t) stats::as.formula(sprintf("`%s` ~ \"%s\"", v, t)),
-        continuous_vars, test_name
-      )
-
-      table <- table |>
-        gtsummary::add_p(test = test_list)
+  if (p == TRUE && length(x) > 0) {
+    tests <- choose_tests(x, y, data, parametric)
+    table <- if (is.null(tests)) {
+      table |> gtsummary::add_p()
     } else {
-      table <- table |>
-        gtsummary::add_p()
+      table |> gtsummary::add_p(test = tests)
     }
   }
 

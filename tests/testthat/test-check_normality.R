@@ -7,3 +7,12 @@ test_that("check_normality returns one row per variable with expected columns", 
   expect_true(all(c("p.value_dec", "p.value_r") %in% names(result)))
   expect_type(result$p.value_r, "logical")
 })
+
+test_that("check_normality ignores missing values", {
+  df <- iris
+  df$Sepal.Length[c(1, 2)] <- NA
+  result <- check_normality(x = "Species", y = "Sepal.Length", data = df)
+
+  expect_equal(nrow(result), 1)
+  expect_false(is.na(result$p.value_r))
+})

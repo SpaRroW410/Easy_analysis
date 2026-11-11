@@ -16,6 +16,9 @@ was an early idea but was never built.
 
 ## Phase 1 — Package hardening
 
+**Status (0.4.1):** CI workflows, generated docs, `.Rbuildignore`, lint config and more
+tests are in place. Still to do: `pkgdown` site, `styler` / pre-commit.
+
 - Install R tooling and actually run `devtools::check()` and
   `devtools::test()` — the tests added in Phase 0 have only been reviewed
   by hand, not executed, since no R environment was available during the

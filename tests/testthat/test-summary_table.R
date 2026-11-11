@@ -66,3 +66,31 @@ test_that("summary_table accepts labels for only some variables", {
   )
   expect_s3_class(result, "flextable")
 })
+
+test_that("summary_table handles missing values in y", {
+  df <- iris
+  df$Sepal.Length[c(1, 51, 101)] <- NA
+  result <- summary_table(
+    x = "Species", y = c("Sepal.Width", "Sepal.Length"), data = df, p = TRUE
+  )
+  expect_s3_class(result, "flextable")
+})
+
+test_that("summary_table handles a factor outcome alongside a continuous one", {
+  df <- iris
+  df$Size <- factor(ifelse(df$Sepal.Length > 5.8, "Long", "Short"))
+  result <- summary_table(
+    x = "Species", y = c("Sepal.Width", "Size"), data = df, p = TRUE
+  )
+  expect_s3_class(result, "flextable")
+})
+
+test_that("summary_table ignores p = TRUE without a grouping variable", {
+  result <- summary_table(y = "Sepal.Width", data = iris, p = TRUE)
+  expect_s3_class(result, "flextable")
+})
+
+test_that("summary_table works with a NULL or empty ylab", {
+  expect_s3_class(summary_table(y = "Sepal.Width", data = iris, ylab = NULL), "flextable")
+  expect_s3_class(summary_table(y = "Sepal.Width", data = iris, ylab = character(0)), "flextable")
+})

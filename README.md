@@ -1,5 +1,7 @@
 # easyanalysis
 
+[![R-CMD-check](https://github.com/SpaRroW410/Easy_analysis/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/SpaRroW410/Easy_analysis/actions/workflows/R-CMD-check.yaml)
+
 R helper functions for building "Table 1"-style descriptive/comparison
 summary tables (via [gtsummary](https://www.danieldsjoberg.com/gtsummary/)
 and [flextable](https://ardata-fr.github.io/flextable-book/)) and for
